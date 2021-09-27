@@ -28,7 +28,7 @@ steps:
     verbose: false
   
 # CmdLine@2 and script are used interchangebly. built-in tasks that are not associated with any build activity.
-- CmdLine@2: './node_modules/.bin/node-sass Tailspin.SpaceGame.Web/wwwroot --output Tailspin.SpaceGame.Web/wwwroot'
+- script: './node_modules/.bin/node-sass Tailspin.SpaceGame.Web/wwwroot --output Tailspin.SpaceGame.Web/wwwroot'
   displayName: 'Compile Sass assets'
 
 - task: gulp@1
