@@ -4,14 +4,52 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- main
+- '*'
 
 pool:
   vmImage: ubuntu-latest
+  # the demands section beneath pool specifies that you need npm.
+  demands:
+  - npm
 
 variables:
   buildConfiguration: 'Release'
 
 steps:
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+- task: UseDotNet@2
+  displayName: 'Use .NET SDK 5.x'
+  inputs:
+    packageType: sdk
+    version: '5.x'
+
+- task: Npm@1
+  displayName: 'Run npm install'
+  inputs:
+    verbose: false
+  
+# CmdLine@2 and script are used interchangebly. built-in tasks that are not associated with any build activity.
+- CmdLine@2: './node_modules/.bin/node-sass Tailspin.SpaceGame.Web/wwwroot --output Tailspin.SpaceGame.Web/wwwroot'
+  displayName: 'Compile Sass assets'
+
+- task: gulp@1
+  displayName: 'Run gulp tasks'
+
+- script: 'echo "$(Build.DefinitionName), $(Build.BuildId), $(Build.BuildNumber)" > buildinfo.txt'
+  displayName: 'Write Build Info'
+  workingDirectory: Tailspin.SpaceGame.Web/wwwroot
+
+# Azure Pipelines provides built-in build tasks that map to many common build activities. 
+# For example, the DotNetCoreCLI@2 task maps to the dotnet command-line utility.
+
+- task: DotNetCoreCLI@2
+  displayName: 'Restore project dependencies'
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build the project - Release'
+  inputs:
+    command: 'build'
+    arguments: '--no-restore --configuration release'
+    projects: '**/*.csproj'
