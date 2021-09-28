@@ -7,7 +7,7 @@ trigger:
 - '*'
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: ubuntu-20.04
   # the demands section beneath pool specifies that you need npm.
   demands:
   - npm
@@ -19,7 +19,6 @@ steps:
 - task: UseDotNet@2
   displayName: 'Use .NET SDK 5.x'
   inputs:
-    packageType: sdk
     version: '5.x'
 
 - task: Npm@1
